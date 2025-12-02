@@ -1,0 +1,105 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="row mb-3">
+    <div class="col-md-6">
+        <h3>{{ action }} Producto: {{ category.name }}</h3>
+    </div>
+    <div class="col-md-6 text-end">
+        <a href="{{ url_for('manage_products', category_id=category._id|string) }}" class="btn btn-secondary">← Volver</a>
+    </div>
+</div>
+
+<hr>
+
+<form method="POST" enctype="multipart/form-data" class="bg-dark p-4 rounded">
+    <div class="mb-3">
+        <label class="form-label text-light">Nombre</label>
+        <input type="text" name="name" class="form-control" value="{{ product.name or '' }}" required>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label text-light">Imagen</label>
+        <input type="file" name="image" class="form-control" accept="image/*">
+        {% if product.image %}
+        <small class="text-muted">Imagen actual: <img src="{{ product.image }}" style="height:50px;" /></small>
+        {% endif %}
+    </div>
+
+    {% if category.name.upper() == "PIZZAS" %}
+    <!-- Campos para PIZZAS -->
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <label class="form-label text-light">Precio Individual</label>
+            <input type="number" step="0.01" name="price_individual" class="form-control" value="{{ product.price_individual or '' }}" placeholder="0.00">
+        </div>
+        <div class="col-md-4">
+            <label class="form-label text-light">Precio Chica</label>
+            <input type="number" step="0.01" name="price_chica" class="form-control" value="{{ product.price_chica or '' }}" placeholder="0.00">
+        </div>
+        <div class="col-md-4">
+            <label class="form-label text-light">Precio Mediana</label>
+            <input type="number" step="0.01" name="price_mediana" class="form-control" value="{{ product.price_mediana or '' }}" placeholder="0.00">
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label class="form-label text-light">Precio Grande</label>
+            <input type="number" step="0.01" name="price_grande" class="form-control" value="{{ product.price_grande or '' }}" placeholder="0.00">
+        </div>
+        <div class="col-md-6">
+            <label class="form-label text-light">Precio H4</label>
+            <input type="number" step="0.01" name="price_h4" class="form-control" value="{{ product.price_h4 or '' }}" placeholder="0.00">
+        </div>
+    </div>
+    <div class="mb-3">
+        <label class="form-label text-light">Ingredientes</label>
+        <textarea name="ingredients" class="form-control" rows="3" placeholder="Ej: Queso, Pepperoni, Champiñones...">{{ product.ingredients or '' }}</textarea>
+    </div>
+
+    {% elif category.name.upper() == "BEBIDAS" %}
+    <!-- Campos para BEBIDAS -->
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label class="form-label text-light">Precio</label>
+            <input type="number" step="0.01" name="price" class="form-control" value="{{ product.price or '' }}" required placeholder="0.00">
+        </div>
+        <div class="col-md-6">
+            <label class="form-label text-light">ML (Mililitros)</label>
+            <input type="number" name="ml" class="form-control" value="{{ product.ml or '' }}" required placeholder="500">
+        </div>
+    </div>
+
+    {% elif category.name.upper() == "COMPLEMENTOS" %}
+    <!-- Campos para COMPLEMENTOS -->
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label class="form-label text-light">Precio</label>
+            <input type="number" step="0.01" name="price" class="form-control" value="{{ product.price or '' }}" required placeholder="0.00">
+        </div>
+        <div class="col-md-6">
+            <label class="form-label text-light">Gramos</label>
+            <input type="number" name="grams" class="form-control" value="{{ product.grams or '' }}" required placeholder="200">
+        </div>
+    </div>
+    <div class="mb-3">
+        <label class="form-label text-light">Ingredientes 
+            <small class="text-muted">(Solo para: Spaghetti, Al Horno, Spaghetti a la Boloñesa, Papa al Horno, Alitas BBQ, Mango Habanero)</small>
+        </label>
+        <textarea name="ingredients" class="form-control" rows="3" placeholder="Ej: Pollo, Queso, Salsa...">{{ product.ingredients or '' }}</textarea>
+    </div>
+
+    {% else %}
+    <!-- Campos genéricos para otras categorías -->
+    <div class="mb-3">
+        <label class="form-label text-light">Precio</label>
+        <input type="number" step="0.01" name="price" class="form-control" value="{{ product.price or '' }}" required placeholder="0.00">
+    </div>
+    {% endif %}
+
+    <div class="mt-4">
+        <button type="submit" class="btn btn-primary">Guardar</button>
+        <a href="{{ url_for('manage_products', category_id=category._id|string) }}" class="btn btn-secondary">Cancelar</a>
+    </div>
+</form>
+{% endblock %}
+

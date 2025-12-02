@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+{% block content %}
+<h3>{{ action }} Categoría</h3>
+<form method="POST" enctype="multipart/form-data">
+<div class="mb-3">
+    <label class="form-label">Nombre</label>
+    <input class="form-control" name="name" value="{{ category.name or '' }}" required>
+</div>
+<div class="mb-3">
+    <label class="form-label">Descripción</label>
+    <textarea class="form-control" name="description">{{ category.description or '' }}</textarea>
+</div>
+<div class="mb-3">
+    <label class="form-label">Orden (número)</label>
+    <input class="form-control" name="order" value="{{ category.order or 0 }}" type="number">
+</div>
+<div class="mb-3">
+    <label class="form-label">Imagen (subir)</label>
+    <input type="file" name="image" class="form-control">
+    {% if category.image %}
+    <div class="mt-2">
+        <img src="{{ category.image }}" style="height:80px;">
+    </div>
+    {% endif %}
+</div>
+<button class="btn btn-primary">{{ action }}</button>
+<a class="btn btn-secondary" href="{{ url_for('admin_dashboard') }}">Cancelar</a>
+</form>
+{% endblock %}

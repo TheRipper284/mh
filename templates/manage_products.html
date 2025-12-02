@@ -1,0 +1,78 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="row mb-3">
+    <div class="col-md-6">
+        <h3>Gestionar Productos: {{ category.name }}</h3>
+    </div>
+    <div class="col-md-6 text-end">
+        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">← Volver</a>
+        <a href="{{ url_for('new_product', category_id=category._id|string) }}" class="btn btn-success">+ Nuevo Producto</a>
+    </div>
+</div>
+
+<hr>
+
+{% if products %}
+<table class="table table-dark table-striped">
+    <thead>
+        <tr>
+            <th>Imagen</th>
+            <th>Nombre</th>
+            <th>Precio</th>
+            {% if category.name.upper() == "PIZZAS" %}
+            <th>Precios por Tamaño</th>
+            <th>Ingredientes</th>
+            {% elif category.name.upper() == "BEBIDAS" %}
+            <th>ML</th>
+            {% elif category.name.upper() == "COMPLEMENTOS" %}
+            <th>Gramos</th>
+            <th>Ingredientes</th>
+            {% endif %}
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for p in products %}
+        <tr>
+            <td data-label="Imagen" style="width:100px;">
+                {% if p.image %}
+                <img src="{{ p.image }}" style="height:60px; width:60px; object-fit:cover; max-width:100%;" />
+                {% else %}
+                <span class="text-muted">Sin imagen</span>
+                {% endif %}
+            </td>
+            <td data-label="Nombre">{{ p.name }}</td>
+            {% if category.name.upper() == "PIZZAS" %}
+            <td data-label="Precios por Tamaño">
+                {% if p.price_individual %}Individual: ${{ p.price_individual }}<br>{% endif %}
+                {% if p.price_chica %}Chica: ${{ p.price_chica }}<br>{% endif %}
+                {% if p.price_mediana %}Mediana: ${{ p.price_mediana }}<br>{% endif %}
+                {% if p.price_grande %}Grande: ${{ p.price_grande }}<br>{% endif %}
+                {% if p.price_h4 %}H4: ${{ p.price_h4 }}{% endif %}
+            </td>
+            <td data-label="Ingredientes">{{ p.ingredients or "-" }}</td>
+            {% else %}
+            <td data-label="Precio">${{ p.price }}</td>
+            {% elif category.name.upper() == "BEBIDAS" %}
+            <td data-label="ML">{{ p.ml or "-" }} ml</td>
+            {% elif category.name.upper() == "COMPLEMENTOS" %}
+            <td data-label="Gramos">{{ p.grams or "-" }} g</td>
+            <td data-label="Ingredientes">{{ p.ingredients or "-" }}</td>
+            {% endif %}
+            <td data-label="Acciones">
+                <a href="{{ url_for('edit_product', id=p._id|string) }}" class="btn btn-sm btn-warning">Editar</a>
+                <form method="POST" action="{{ url_for('delete_product', id=p._id|string) }}" class="d-inline-block" onsubmit="return confirm('¿Eliminar este producto?')">
+                    <button class="btn btn-sm btn-danger">Borrar</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div class="alert alert-info">
+    No hay productos en esta categoría. <a href="{{ url_for('new_product', category_id=category._id|string) }}">Crear el primero</a>
+</div>
+{% endif %}
+{% endblock %}
+

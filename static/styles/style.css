@@ -1,0 +1,485 @@
+/* ===========================================
+   ESTILO DE CARDS TIPO CATEGORÍA
+   =========================================== */
+.card-category {
+    position: relative;
+    border-radius: 18px;
+    overflow: hidden;
+    background: rgba(15, 15, 15, 0.85);
+    border: 1px solid rgba(0, 255, 255, 0.4);
+    box-shadow:
+        0 0 12px rgba(0, 255, 255, 0.25),
+        0 0 28px rgba(0, 255, 255, 0.2),
+        inset 0 0 8px rgba(0, 255, 255, 0.1);
+    min-height: 260px;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* efecto hover suave neon */
+.card-category:hover {
+    transform: translateY(-6px);
+    box-shadow:
+        0 0 18px rgba(0, 255, 255, 0.55),
+        0 0 40px rgba(0, 255, 255, 0.35);
+}
+
+.card-img-wrap img {
+    height: 260px;
+    width: 100%;
+    object-fit: cover;
+    display: block;
+    filter: brightness(0.9);
+}
+
+/* overlay tipo gradiente neon suave */
+.overlay-dark {
+    background: linear-gradient(
+        180deg,
+        rgba(0, 0, 0, 0.0),
+        rgba(0, 0, 0, 0.75)
+    );
+}
+
+/* ===========================================
+   BOTÓN NEON
+   =========================================== */
+.btn-neon {
+    display: inline-block;
+    border-radius: 22px;
+    padding: 12px 22px;
+    border: 2px solid rgba(64, 200, 255, 0.85);
+    box-shadow: 0 0 15px rgba(64, 200, 255, 0.4);
+    color: #fff;
+    font-weight: 600;
+    backdrop-filter: blur(4px);
+    transition: 0.25s ease;
+    font-size: 1rem;
+}
+
+.btn-neon:hover {
+    box-shadow:
+        0 0 20px rgba(64, 200, 255, 0.8),
+        0 0 35px rgba(64, 200, 255, 0.5);
+    transform: scale(1.03);
+}
+
+/* ===========================================
+   LOGO (NEÓN SUAVE)
+   =========================================== */
+.logo-wrapper {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.logo-wrapper img {
+    max-height: 120px;
+    width: auto;
+    height: auto;
+    filter:
+        drop-shadow(0 0 14px rgba(0, 225, 255, 0.7))
+        drop-shadow(0 0 28px rgba(0, 225, 255, 0.4));
+    animation: neonPulse 2.7s infinite alternate ease-in-out;
+}
+
+@keyframes neonPulse {
+    from {
+        filter:
+            drop-shadow(0 0 10px rgba(0, 225, 255, 0.5))
+            drop-shadow(0 0 18px rgba(0, 225, 255, 0.3));
+    }
+    to {
+        filter:
+            drop-shadow(0 0 20px rgba(0, 225, 255, 1))
+            drop-shadow(0 0 34px rgba(0, 225, 255, 0.7));
+    }
+}
+
+/* ===========================================
+   RESPONSIVE - TABLETS (768px y menos)
+   =========================================== */
+@media (max-width: 768px) {
+    .card-category {
+        min-height: 220px;
+        border-radius: 14px;
+    }
+
+    .card-img-wrap img {
+        height: 220px;
+    }
+
+    .logo-wrapper {
+        margin-bottom: 20px;
+    }
+
+    .logo-wrapper img {
+        max-height: 90px;
+    }
+
+    .btn-neon {
+        padding: 10px 18px;
+        font-size: 0.9rem;
+    }
+
+    .card-title {
+        font-size: 1.1rem;
+    }
+
+    .card-text {
+        font-size: 0.85rem;
+    }
+}
+
+/* ===========================================
+   RESPONSIVE - MÓVILES (576px y menos)
+   =========================================== */
+@media (max-width: 576px) {
+    .card-category {
+        min-height: 200px;
+        border-radius: 12px;
+    }
+
+    .card-img-wrap img {
+        height: 200px;
+    }
+
+    .logo-wrapper {
+        margin-bottom: 15px;
+    }
+
+    .logo-wrapper img {
+        max-height: 70px;
+    }
+
+    .btn-neon {
+        padding: 8px 16px;
+        font-size: 0.85rem;
+        border-radius: 18px;
+    }
+
+    .card-title {
+        font-size: 1rem;
+    }
+
+    .card-text {
+        font-size: 0.8rem;
+    }
+
+    /* Ajustar padding en cards */
+    .card-img-overlay {
+        padding: 1rem !important;
+    }
+
+    /* Ajustar títulos principales */
+    h2 {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem !important;
+    }
+
+    h3 {
+        font-size: 1.3rem;
+    }
+
+    /* Mejorar espaciado en contenedores */
+    .container {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+    /* Ajustar grid gaps */
+    .row.g-3 {
+        --bs-gutter-y: 0.75rem;
+        --bs-gutter-x: 0.75rem;
+    }
+}
+
+/* ===========================================
+   RESPONSIVE - MÓVILES PEQUEÑOS (400px y menos)
+   =========================================== */
+@media (max-width: 400px) {
+    .card-category {
+        min-height: 180px;
+        border-radius: 10px;
+    }
+
+    .card-img-wrap img {
+        height: 180px;
+    }
+
+    .logo-wrapper img {
+        max-height: 60px;
+    }
+
+    .btn-neon {
+        padding: 6px 12px;
+        font-size: 0.75rem;
+    }
+
+    .card-title {
+        font-size: 0.95rem;
+    }
+
+    h2 {
+        font-size: 1.3rem;
+    }
+
+    h3 {
+        font-size: 1.1rem;
+    }
+
+    /* Reducir sombras en móviles pequeños para mejor rendimiento */
+    .card-category {
+        box-shadow:
+            0 0 8px rgba(0, 255, 255, 0.2),
+            0 0 20px rgba(0, 255, 255, 0.15);
+    }
+
+    .card-category:hover {
+        box-shadow:
+            0 0 12px rgba(0, 255, 255, 0.4),
+            0 0 28px rgba(0, 255, 255, 0.25);
+    }
+}
+
+/* ===========================================
+   FLIP CARD RESPONSIVE
+   =========================================== */
+@media (max-width: 576px) {
+    .flip-card {
+        min-height: 200px !important;
+    }
+
+    .flip-card-back {
+        padding: 1rem !important;
+        font-size: 0.85rem;
+    }
+
+    .flip-card-back h5 {
+        font-size: 1rem;
+        margin-bottom: 0.75rem !important;
+    }
+
+    .flip-card-back h6 {
+        font-size: 0.9rem;
+    }
+
+    .flip-card-back .fs-3 {
+        font-size: 1.5rem !important;
+    }
+
+    .flip-card-back ul {
+        font-size: 0.8rem;
+        padding-left: 1rem;
+    }
+
+    .flip-card-back .small {
+        font-size: 0.75rem !important;
+    }
+}
+
+@media (max-width: 400px) {
+    .flip-card {
+        min-height: 180px !important;
+    }
+
+    .flip-card-back {
+        padding: 0.75rem !important;
+        font-size: 0.8rem;
+    }
+
+    .flip-card-back h5 {
+        font-size: 0.95rem;
+        margin-bottom: 0.5rem !important;
+    }
+
+    .flip-card-back .fs-3 {
+        font-size: 1.3rem !important;
+    }
+}
+
+/* ===========================================
+   NAVBAR RESPONSIVE
+   =========================================== */
+@media (max-width: 576px) {
+    .navbar-brand {
+        font-size: 0.9rem;
+    }
+
+    .navbar .btn {
+        font-size: 0.85rem;
+        padding: 0.375rem 0.75rem;
+    }
+
+    .navbar .container {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+}
+
+@media (max-width: 400px) {
+    .navbar-brand {
+        font-size: 0.8rem;
+    }
+
+    .navbar .btn {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+    }
+}
+
+/* ===========================================
+   MAIN CONTAINER RESPONSIVE
+   =========================================== */
+@media (max-width: 576px) {
+    main.container {
+        padding-top: 1.5rem !important;
+        padding-bottom: 1.5rem !important;
+    }
+}
+
+/* ===========================================
+   ALERTAS RESPONSIVE
+   =========================================== */
+@media (max-width: 576px) {
+    .alert {
+        font-size: 0.9rem;
+        padding: 0.75rem;
+    }
+}
+
+/* ===========================================
+   TABLAS RESPONSIVE
+   =========================================== */
+@media (max-width: 768px) {
+    .table {
+        font-size: 0.9rem;
+    }
+
+    .table th,
+    .table td {
+        padding: 0.5rem;
+    }
+
+    .table .btn-sm {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .table {
+        font-size: 0.85rem;
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .table thead {
+        display: none;
+    }
+
+    .table tbody,
+    .table tr,
+    .table td {
+        display: block;
+        width: 100%;
+    }
+
+    .table tr {
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 1rem;
+        border-radius: 8px;
+        padding: 0.75rem;
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .table td {
+        border: none;
+        padding: 0.5rem 0;
+        text-align: left;
+        position: relative;
+        padding-left: 50%;
+    }
+
+    .table td:before {
+        content: attr(data-label);
+        position: absolute;
+        left: 0;
+        width: 45%;
+        padding-right: 10px;
+        white-space: nowrap;
+        font-weight: bold;
+        color: rgba(0, 255, 255, 0.8);
+    }
+
+    .table td img {
+        max-width: 100%;
+        height: auto;
+    }
+
+    .table .btn {
+        display: block;
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+
+    .table .btn:last-child {
+        margin-bottom: 0;
+    }
+
+    .table form {
+        width: 100%;
+    }
+}
+
+/* ===========================================
+   FORMULARIOS RESPONSIVE
+   =========================================== */
+@media (max-width: 576px) {
+    .form-control {
+        font-size: 0.9rem;
+        padding: 0.5rem;
+    }
+
+    .form-label {
+        font-size: 0.9rem;
+    }
+
+    .btn {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+    }
+
+    .btn-sm {
+        font-size: 0.8rem;
+        padding: 0.375rem 0.75rem;
+    }
+}
+
+/* ===========================================
+   HEADERS Y TÍTULOS RESPONSIVE
+   =========================================== */
+@media (max-width: 576px) {
+    .text-end {
+        text-align: left !important;
+        margin-top: 1rem;
+    }
+
+    .col-md-6.text-end {
+        margin-top: 1rem;
+    }
+
+    .col-md-6.text-end form {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .col-md-6.text-end .form-control {
+        width: 100% !important;
+    }
+
+    .col-md-6.text-end .btn {
+        width: 100%;
+    }
+}

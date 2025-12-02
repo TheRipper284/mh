@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="logo-wrapper">
+    <img src="{{ url_for('static', filename='uploads/logo2.png') }}" alt="Logo">
+</div>
+
+<div class="row g-3 justify-content-center">
+{% for c in categories %}
+<div class="col-12 col-sm-6 col-md-3">
+    <a href="{{ url_for('show_category', id=c._id|string) }}" class="text-decoration-none">
+    <div class="card card-category h-100 text-white">
+        <div class="card-img-wrap">
+            {% if c.image %}
+            <img src="{{ c.image }}" class="card-img-top" alt="{{ c.name }}">
+            {% else %}
+            <img src="{{ url_for('static', filename='uploads/default.jpg') }}" class="card-img-top" alt="{{ c.name }}">
+            {% endif %}
+        </div>
+        <div class="card-img-overlay d-flex flex-column justify-content-end p-3 overlay-dark">
+            <h5 class="card-title text-white">{{ c.name }}</h5>
+            <p class="card-text small">{{ c.description }}</p>
+        </div>
+    </div>
+    </a>
+</div>
+{% endfor %}
+</div>
+
+<div class="text-center mt-5">
+    <div class="btn btn-neon">
+        ¡Haz Clic en Categoría para Empezar a Explorar!
+    </div>
+</div>
+{% endblock %}
