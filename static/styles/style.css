@@ -3,24 +3,53 @@
    =========================================== */
 .card-category {
     position: relative;
-    border-radius: 18px;
+    border-radius: 14px;
     overflow: hidden;
-    background: rgba(15, 15, 15, 0.85);
-    border: 1px solid rgba(0, 255, 255, 0.4);
-    box-shadow:
-        0 0 12px rgba(0, 255, 255, 0.25),
-        0 0 28px rgba(0, 255, 255, 0.2),
-        inset 0 0 8px rgba(0, 255, 255, 0.1);
     min-height: 260px;
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    padding: 12px;
+    background-color: #050505;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 12px;
+    border: none;
+    transition: transform 0.25s ease;
 }
 
-/* efecto hover suave neon */
+.card-category::before,
+.card-category::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    z-index: -1;
+}
+
+.card-category::before {
+    left: -6px;
+    width: calc(100% + 12px);
+    height: calc(100% + 12px);
+    margin: auto;
+    background: linear-gradient(-45deg, #00c853 0%, #ff1744 100%);
+    transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.card-category::after {
+    background: linear-gradient(-45deg, rgba(0, 200, 83, 0.7) 0%, rgba(255, 23, 68, 0.7) 100%);
+    transform: translate3d(0, 0, 0) scale(0.96);
+    filter: blur(25px);
+}
+
 .card-category:hover {
     transform: translateY(-6px);
-    box-shadow:
-        0 0 18px rgba(0, 255, 255, 0.55),
-        0 0 40px rgba(0, 255, 255, 0.35);
+}
+
+.card-category:hover::after {
+    filter: blur(35px);
+}
+
+.card-category:hover::before {
+    transform: rotate(-90deg) scaleX(1.32) scaleY(0.8);
 }
 
 .card-img-wrap img {
@@ -45,22 +74,68 @@
    =========================================== */
 .btn-neon {
     display: inline-block;
-    border-radius: 22px;
-    padding: 12px 22px;
-    border: 2px solid rgba(64, 200, 255, 0.85);
-    box-shadow: 0 0 15px rgba(64, 200, 255, 0.4);
+    border-radius: 999px;
+    padding: 12px 26px;
+    border: 2px solid rgba(0, 200, 83, 0.9);
+    box-shadow:
+        0 0 12px rgba(0, 200, 83, 0.6),
+        0 0 26px rgba(239, 51, 64, 0.5);
     color: #fff;
     font-weight: 600;
     backdrop-filter: blur(4px);
-    transition: 0.25s ease;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    background: radial-gradient(circle at 0% 0%, rgba(0, 200, 83, 0.35), transparent 55%),
+                radial-gradient(circle at 100% 100%, rgba(239, 51, 64, 0.45), transparent 55%);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
     font-size: 1rem;
 }
 
 .btn-neon:hover {
     box-shadow:
-        0 0 20px rgba(64, 200, 255, 0.8),
-        0 0 35px rgba(64, 200, 255, 0.5);
+        0 0 18px rgba(0, 200, 83, 0.9),
+        0 0 40px rgba(239, 51, 64, 0.8);
+    border-color: rgba(239, 51, 64, 1);
+    background: radial-gradient(circle at 0% 0%, rgba(0, 200, 83, 0.6), transparent 60%),
+                radial-gradient(circle at 100% 100%, rgba(239, 51, 64, 0.8), transparent 60%);
     transform: scale(1.03);
+}
+
+/* Botones genéricos adaptados al tema */
+.btn-primary,
+.btn-success,
+.btn-danger,
+.btn-warning,
+.btn-secondary {
+    border-radius: 999px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+}
+
+.btn-success,
+.btn-primary {
+    background: linear-gradient(135deg, #00c853, #4caf50);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #ef3340, #b71c1c);
+}
+
+.btn-warning {
+    background: linear-gradient(135deg, #ffcd00, #ff9800);
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, #424242, #212121);
+}
+
+.btn-primary:hover,
+.btn-success:hover,
+.btn-danger:hover,
+.btn-warning:hover,
+.btn-secondary:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
 }
 
 /* ===========================================
@@ -72,7 +147,7 @@
 }
 
 .logo-wrapper img {
-    max-height: 120px;
+    max-height: 190px;
     width: auto;
     height: auto;
     filter:
@@ -112,7 +187,7 @@
     }
 
     .logo-wrapper img {
-        max-height: 90px;
+        max-height: 150px;
     }
 
     .btn-neon {
@@ -147,7 +222,7 @@
     }
 
     .logo-wrapper img {
-        max-height: 70px;
+        max-height: 150px;
     }
 
     .btn-neon {
@@ -206,7 +281,7 @@
     }
 
     .logo-wrapper img {
-        max-height: 60px;
+        max-height: 150px;
     }
 
     .btn-neon {
@@ -481,5 +556,243 @@
 
     .col-md-6.text-end .btn {
         width: 100%;
+    }
+}
+
+/* ===========================================
+   NAVEGACIÓN DE CATEGORÍAS
+   =========================================== */
+.category-nav .dropdown-toggle {
+    min-width: 220px;
+    border-radius: 999px;
+    border: 1px solid rgba(0, 0, 0, 0.6);
+    background: radial-gradient(circle at 0% 0%, rgba(0, 200, 83, 0.4), transparent 55%),
+                radial-gradient(circle at 100% 100%, rgba(239, 51, 64, 0.5), transparent 55%);
+    box-shadow:
+        0 0 10px rgba(0, 0, 0, 0.8),
+        0 0 16px rgba(0, 0, 0, 0.6);
+    font-weight: 500;
+}
+
+.category-nav .dropdown-menu {
+    min-width: 220px;
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.7);
+    border-radius: 14px;
+    border: 1px solid rgba(0, 0, 0, 0.7);
+    background: radial-gradient(circle at 0% 0%, rgba(0, 200, 83, 0.15), transparent 55%),
+                radial-gradient(circle at 100% 100%, rgba(239, 51, 64, 0.2), transparent 55%),
+                rgba(10, 10, 10, 0.95);
+    backdrop-filter: blur(8px);
+}
+
+.dropdown-menu-dark .dropdown-item {
+    color: #f5f5f5;
+    padding: 0.45rem 1rem;
+}
+
+.dropdown-menu-dark .dropdown-item:hover,
+.dropdown-menu-dark .dropdown-item:focus {
+    background: linear-gradient(135deg, rgba(0, 200, 83, 0.35), rgba(239, 51, 64, 0.5));
+    color: #ffffff;
+}
+
+@media (max-width: 576px) {
+    .category-nav {
+        align-items: stretch !important;
+    }
+
+    .category-nav .dropdown,
+    .category-nav .dropdown-toggle {
+        width: 100%;
+    }
+
+    .category-nav .dropdown-menu {
+        width: 100%;
+    }
+}
+
+/* ===========================================
+   FONDO TIPO BANDERA (VERDE / AMARILLO / ROJO)
+   Basado en Uiverse.io by 16alves02
+   =========================================== */
+.bg-stripes {
+    width: 100%;
+    min-height: 100vh;
+    background: linear-gradient(
+        to right,
+        #289a6a 0%,
+        #289a6a 30%,
+        #ffcd00 30%,
+        #ffcd00 70%,
+        #ef3340 70%,
+        #ef3340 100%
+    );
+    background-size: 120px 100%;
+    background-repeat: repeat;
+}
+
+/* ===========================================
+   BOTÓN ESPECIAL TIPO UIVERSE (StealthWorm)
+   =========================================== */
+.btn-universe {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 13rem;
+    height: 3rem;
+    overflow: hidden;
+    background-size: 300% 300%;
+    cursor: pointer;
+    backdrop-filter: blur(1rem);
+    border-radius: 5rem;
+    transition: 0.5s;
+    animation: gradient_301 5s ease infinite;
+    border: double 4px transparent;
+    background-image:
+        linear-gradient(#212121, #212121),
+        linear-gradient(
+            137.48deg,
+            #ffdb3b 10%,
+            #fe53bb 45%,
+            #8f51ea 67%,
+            #0044ff 87%
+        );
+    background-origin: border-box;
+    background-clip: content-box, border-box;
+}
+
+.btn-universe-label {
+    z-index: 2;
+    font-size: 12px;
+    letter-spacing: 3px;
+    color: #ffffff;
+    text-transform: uppercase;
+    text-shadow: 0 0 4px #ffffff;
+}
+
+.btn-universe-stars {
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    overflow: hidden;
+    transition: 0.5s;
+    backdrop-filter: blur(1rem);
+    border-radius: 5rem;
+}
+
+.btn-universe-glow {
+    position: absolute;
+    display: flex;
+    width: 12rem;
+}
+
+.btn-universe-circle {
+    width: 100%;
+    height: 30px;
+    filter: blur(2rem);
+    animation: pulse_3011 4s infinite;
+    z-index: -1;
+}
+
+.btn-universe-circle:nth-of-type(1) {
+    background: rgba(254, 83, 186, 0.636);
+}
+
+.btn-universe-circle:nth-of-type(2) {
+    background: rgba(142, 81, 234, 0.704);
+}
+
+.btn-universe:hover .btn-universe-stars {
+    z-index: 1;
+    background-color: #212121;
+}
+
+.btn-universe:hover {
+    transform: scale(1.1);
+}
+
+.btn-universe:active {
+    border: double 4px #fe53bb;
+    background-origin: border-box;
+    background-clip: content-box, border-box;
+    animation: none;
+}
+
+.btn-universe:active .btn-universe-circle {
+    background: #fe53bb;
+}
+
+.btn-universe-stars-inner {
+    position: relative;
+    width: 200rem;
+    height: 200rem;
+}
+
+.btn-universe-stars-inner::after,
+.btn-universe-stars-inner::before {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-image: radial-gradient(#ffffff 1px, transparent 1%);
+    background-size: 50px 50px;
+}
+
+.btn-universe-stars-inner::after {
+    top: -10rem;
+    left: -100rem;
+    animation: animStarRotate 90s linear infinite;
+}
+
+.btn-universe-stars-inner::before {
+    top: 0;
+    left: -50%;
+    opacity: 0.5;
+    animation: animStar 60s linear infinite;
+}
+
+@keyframes animStar {
+    from {
+        transform: translateY(0);
+    }
+    to {
+        transform: translateY(-135rem);
+    }
+}
+
+@keyframes animStarRotate {
+    from {
+        transform: rotate(360deg);
+    }
+    to {
+        transform: rotate(0);
+    }
+}
+
+@keyframes gradient_301 {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+@keyframes pulse_3011 {
+    0% {
+        transform: scale(0.75);
+        box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.7);
+    }
+    70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
+    }
+    100% {
+        transform: scale(0.75);
+        box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
     }
 }

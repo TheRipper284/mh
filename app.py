@@ -374,13 +374,18 @@ def show_category(id):
     if not category:
         return "Categoría no encontrada", 404
 
+    # Obtiene categorías para construir el desplegable de navegación
+    categories = list(categories_col.find().sort("order", 1))
+    other_categories = [c for c in categories if c["_id"] != cat_id]
+
     # Obtiene SOLO los productos de esa categoría
     products = list(products_col.find({"category_id": cat_id}))
 
     return render_template(
         "category_view.html",
         category=category,
-        products=products
+        products=products,
+        other_categories=other_categories
     )
 
 # ---------------------------------

@@ -43,6 +43,7 @@
             </td>
             <td data-label="Nombre">{{ p.name }}</td>
             {% if category.name.upper() == "PIZZAS" %}
+            <td data-label="Precio">-</td>
             <td data-label="Precios por Tamaño">
                 {% if p.price_individual %}Individual: ${{ p.price_individual }}<br>{% endif %}
                 {% if p.price_chica %}Chica: ${{ p.price_chica }}<br>{% endif %}
@@ -51,13 +52,15 @@
                 {% if p.price_h4 %}H4: ${{ p.price_h4 }}{% endif %}
             </td>
             <td data-label="Ingredientes">{{ p.ingredients or "-" }}</td>
-            {% else %}
-            <td data-label="Precio">${{ p.price }}</td>
             {% elif category.name.upper() == "BEBIDAS" %}
+            <td data-label="Precio">${{ p.price }}</td>
             <td data-label="ML">{{ p.ml or "-" }} ml</td>
             {% elif category.name.upper() == "COMPLEMENTOS" %}
+            <td data-label="Precio">${{ p.price }}</td>
             <td data-label="Gramos">{{ p.grams or "-" }} g</td>
             <td data-label="Ingredientes">{{ p.ingredients or "-" }}</td>
+            {% else %}
+            <td data-label="Precio">${{ p.price }}</td>
             {% endif %}
             <td data-label="Acciones">
                 <a href="{{ url_for('edit_product', id=p._id|string) }}" class="btn btn-sm btn-warning">Editar</a>
