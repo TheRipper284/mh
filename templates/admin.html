@@ -1,76 +1,197 @@
 {% extends "layout.html" %}
 {% block content %}
-<div class="row mb-4">
-<div class="col-md-8">
-    <h3>Panel de Administración</h3>
-    <p>Gestiona categorías, productos, pedidos y códigos QR</p>
-</div>
-<div class="col-md-4 text-end">
-    <a href="{{ url_for('admin_logout') }}" class="btn btn-outline-danger">
-        Cerrar Sesión
-    </a>
-</div>
-</div>
+<div class="admin-shell">
+    <aside class="admin-sidebar">
+        <div class="d-flex flex-column gap-2">
+            <h5>Panel de control</h5>
+            <p class="text-muted small mb-3">Accede rápido a tus tareas del día</p>
+            <a href="{{ url_for('admin_logout') }}" class="btn btn-sm btn-outline-danger w-100">Cerrar sesión</a>
+        </div>
+        <ul class="admin-nav">
+            <li><a href="#resumen" class="active">🏠 Resumen</a></li>
+            <li><a href="#acciones">⚡ Acciones</a></li>
+            <li><a href="#categorias">📂 Categorías</a></li>
+            <li><a href="{{ url_for('admin_cash') }}">💰 Corte de caja</a></li>
+            <li><a href="#actividad">📈 Actividad reciente</a></li>
+        </ul>
+    </aside>
 
-<!-- Enlaces rápidos -->
-<div class="row mb-4">
-    <div class="col-md-3">
-        <a href="{{ url_for('admin_orders') }}" class="btn btn-info w-100 mb-2">
-            <strong>📋 Pedidos</strong><br>
-            <small>Ver pedidos activos</small>
-        </a>
-    </div>
-    <div class="col-md-3">
-        <a href="{{ url_for('admin_qr_codes') }}" class="btn btn-primary w-100 mb-2">
-            <strong>📱 Códigos QR</strong><br>
-            <small>Generar QR para mesas</small>
-        </a>
-    </div>
-    <div class="col-md-3">
-        <a href="{{ url_for('new_category') }}" class="btn btn-success w-100 mb-2">
-            <strong>➕ Nueva Categoría</strong>
-        </a>
-    </div>
-    <div class="col-md-3">
-        <a href="{{ url_for('index') }}" class="btn btn-outline-light w-100 mb-2">
-            <strong>🏠 Ver Menú</strong>
-        </a>
-    </div>
-</div>
+    <section class="admin-main">
+        <div id="resumen" class="mb-4 d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <h3 class="mb-1">Panel de Administración</h3>
+                <p class="mb-0 text-muted">Gestiona categorías, productos, pedidos y códigos QR desde un solo menú.</p>
+            </div>
+            <a href="{{ url_for('index') }}" class="btn btn-outline-light">Ver menú público</a>
+        </div>
 
-<hr>
-
-<div class="mb-3">
-<h4>Categorías</h4>
-</div>
-
-<table class="table table-dark table-striped">
-<thead>
-    <tr>
-    <th>Orden</th><th>Nombre</th><th>Imagen</th><th>Acciones</th>
-    </tr>
-</thead>
-<tbody>
-    {% for c in categories %}
-    <tr>
-    <td data-label="Orden">{{ c.order }}</td>
-    <td data-label="Nombre">{{ c.name }}</td>
-    <td data-label="Imagen" style="width:120px;">
-        {% if c.image %}
-        <img src="{{ c.image }}" style="height:60px; max-width:100%;" />
-        {% else %}
-        <span class="text-muted">Sin imagen</span>
+        {% if stats is defined %}
+        <div class="dashboard-kpis">
+            <div class="kpi-card">
+                <small>Categorías</small>
+                <h3 class="mb-1">{{ stats.categories }}</h3>
+                <p class="text-muted small mb-0">Organiza el orden y descripción</p>
+            </div>
+            <div class="kpi-card">
+                <small>Productos</small>
+                <h3 class="mb-1">{{ stats.products }}</h3>
+                <p class="text-muted small mb-0">Actualiza precios y tamaños</p>
+            </div>
+            <div class="kpi-card">
+                <small>Pedidos activos</small>
+                <h3 class="mb-1">{{ stats.active_orders }}</h3>
+                <p class="text-muted small mb-0">Pendientes de cocina</p>
+            </div>
+            <div class="kpi-card">
+                <small>Sin imagen</small>
+                <h3 class="mb-1">{{ stats.pending_media }}</h3>
+                <p class="text-muted small mb-0">Categorías por completar</p>
+            </div>
+        </div>
         {% endif %}
-    </td>
-    <td data-label="Acciones">
-        <a href="{{ url_for('manage_products', category_id=c._id|string) }}" class="btn btn-sm btn-info">Productos</a>
-        <a href="{{ url_for('edit_category', id=c._id|string) }}" class="btn btn-sm btn-warning">Editar</a>
-        <form method="POST" action="{{ url_for('delete_category', id=c._id|string) }}" class="d-inline-block" onsubmit="return confirm('¿Eliminar esta categoría?')">
-        <button class="btn btn-sm btn-danger">Borrar</button>
-        </form>
-    </td>
-    </tr>
-    {% endfor %}
-</tbody>
-</table>
+
+        <div id="acciones" class="quick-actions my-4">
+            <a class="quick-action-card" href="{{ url_for('admin_orders') }}">
+                <strong class="d-block">📋 Pedidos activos</strong>
+                <span class="text-muted small">Cambia estado y tiempos</span>
+            </a>
+            <a class="quick-action-card" href="{{ url_for('admin_qr_codes') }}">
+                <strong class="d-block">📱 Códigos QR</strong>
+                <span class="text-muted small">Genera y descarga por mesa</span>
+            </a>
+            <a class="quick-action-card" href="{{ url_for('new_category') }}">
+                <strong class="d-block">➕ Nueva categoría</strong>
+                <span class="text-muted small">Define orden y descripción</span>
+            </a>
+            <a class="quick-action-card" href="{{ url_for('admin_cash') }}">
+                <strong class="d-block">💰 Corte de caja</strong>
+                <span class="text-muted small">Resumen de ventas por día</span>
+            </a>
+            <a class="quick-action-card" href="{{ url_for('index') }}">
+                <strong class="d-block">🏠 Vista del cliente</strong>
+                <span class="text-muted small">Revisa cómo se ve tu menú</span>
+            </a>
+        </div>
+
+        <div class="admin-table-wrapper" id="categorias">
+            <div class="table-controls">
+                <form class="flex-grow-1" method="get" action="{{ url_for('admin_dashboard') }}">
+                    <input type="text" class="form-control form-control-lg" name="q" placeholder="Buscar categoría por nombre..." value="{{ search_query }}">
+                </form>
+                <a href="{{ url_for('new_category') }}" class="btn btn-success">Agregar categoría</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-dark table-striped align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Orden</th>
+                            <th>Nombre</th>
+                            <th>Descripción</th>
+                            <th>Imagen</th>
+                            <th class="text-end">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in categories %}
+                        <tr>
+                            <td>{{ c.order }}</td>
+                            <td>
+                                <strong>{{ c.name }}</strong>
+                                {% if not c.image %}
+                                <span class="badge text-bg-warning ms-2">Sin imagen</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-muted small">{{ c.description }}</td>
+                            <td style="width:140px;">
+                                {% if c.image %}
+                                <img src="{{ c.image }}" class="img-fluid rounded" alt="{{ c.name }}">
+                                {% else %}
+                                <span class="text-muted">Sin imagen</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <div class="btn-group">
+                                    <a href="{{ url_for('manage_products', category_id=c._id|string) }}" class="btn btn-sm btn-info">Productos</a>
+                                    <a href="{{ url_for('edit_category', id=c._id|string) }}" class="btn btn-sm btn-warning">Editar</a>
+                                    <button type="button" class="btn btn-sm btn-outline-light dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <span class="visually-hidden">Más acciones</span>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                                        <li>
+                                            <form method="POST" action="{{ url_for('delete_category', id=c._id|string) }}" onsubmit="return confirm('¿Eliminar esta categoría y sus productos asociados?')">
+                                                <button class="dropdown-item text-danger" type="submit">Eliminar</button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center text-muted py-4">
+                                No se encontraron categorías. Crea la primera desde el botón "Agregar categoría".
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="row mt-4" id="actividad">
+            <div class="col-lg-6 mb-3 mb-lg-0">
+                <div class="admin-table-wrapper h-100">
+                    <h5 class="mb-3">Actividad de pedidos</h5>
+                    <ul class="list-unstyled mb-0">
+                        {% if latest_orders is defined %}
+                        {% for order in latest_orders %}
+                        <li class="mb-3 pb-3 border-bottom border-secondary">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <strong>Mesa {{ order.mesa_num }}</strong>
+                                    <p class="small text-muted mb-1">{{ order["items"]|length }} artículos · ${{ '%.2f'|format(order.total|default(0, true)) }}</p>
+                                </div>
+                                <span class="badge text-bg-info text-uppercase">{{ order.status }}</span>
+                            </div>
+                            <small class="text-muted">Creado {{ order.created_at.strftime('%d/%m %H:%M') if order.created_at else '--' }}</small>
+                        </li>
+                        {% else %}
+                        <li class="text-muted text-center py-3">No hay pedidos recientes.</li>
+                        {% endfor %}
+                        {% else %}
+                        <li class="text-muted text-center py-3">No hay datos de pedidos.</li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="admin-table-wrapper h-100">
+                    <h5 class="mb-3">Últimos productos editados</h5>
+                    <ul class="list-unstyled mb-0">
+                        {% if latest_products is defined %}
+                        {% for product in latest_products %}
+                        <li class="mb-3 pb-3 border-bottom border-secondary">
+                            <strong>{{ product.name }}</strong>
+                            <p class="small text-muted mb-1">
+                                {% set category = categories | selectattr('_id', 'equalto', product.category_id) | list | first %}
+                                {{ category.name if category else 'Sin categoría' }}
+                            </p>
+                            <div class="d-flex flex-wrap gap-2">
+                                <a class="btn btn-sm btn-outline-light" href="{{ url_for('edit_product', id=product._id|string) }}">Editar</a>
+                                <a class="btn btn-sm btn-outline-info" href="{{ url_for('manage_products', category_id=product.category_id|string) }}">Ver categoría</a>
+                            </div>
+                        </li>
+                        {% else %}
+                        <li class="text-muted text-center py-3">Aún no hay productos registrados.</li>
+                        {% endfor %}
+                        {% else %}
+                        <li class="text-muted text-center py-3">No hay datos de productos.</li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
 {% endblock %}
+

@@ -1,16 +1,43 @@
 {% extends "layout.html" %}
 {% block content %}
-{% if mesa_num %}
-<div class="alert alert-info text-center mb-4">
-    <strong>Mesa {{ mesa_num }}</strong> - Bienvenido al menú digital
-</div>
-{% endif %}
+<section class="intro-hero mb-5">
+    <div class="row align-items-center g-4">
+        <div class="col-lg-6">
+            <div class="logo-wrapper mb-3">
+                <img src="{{ url_for('static', filename='uploads/logo2.png') }}" alt="Logo">
+            </div>
+            <p class="text-gradient h5 mb-4">Siente el sabor de la casa en cada rebanada.</p>
+            <ul class="list-unstyled hero-list mb-4">
+                <li>Ingredientes frescos y recetas originales</li>
+                <li>Ordena desde tu mesa y sigue tu pedido en tiempo real</li>
+                <li>Explora pizzas, bebidas y complementos en un solo toque</li>
+            </ul>
+            <div class="d-flex flex-wrap gap-3">
+                <a class="btn btn-neon btn-lg" href="#categorias">Explorar menú</a>
+                {% if mesa_num %}
+                <div class="hero-badge">
+                    Mesa <strong>{{ mesa_num }}</strong> conectada
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="hero-panel">
+                <div class="hero-panel-card">
+                    <span class="small text-uppercase opacity-75">Recomendado</span>
+                    <h5 class="mb-2">Pizza especial Henrie's</h5>
+                    <p class="text-muted mb-0">Salsa artesanal, queso mozzarella, pepperoni premium y toque habanero.</p>
+                </div>
+                <div class="hero-panel-card">
+                    <span class="small text-uppercase opacity-75">Tiempo estimado</span>
+                    <h4 class="mb-0">15 - 20 min</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
-<div class="logo-wrapper">
-    <img src="{{ url_for('static', filename='uploads/logo2.png') }}" alt="Logo">
-</div>
-
-<div class="row g-3 justify-content-center">
+<div class="row g-3 justify-content-center" id="categorias">
 {% for c in categories %}
 <div class="col-12 col-sm-6 col-md-3">
     <a href="{{ url_for('show_category', id=c._id|string) }}" class="text-decoration-none">

@@ -1,0 +1,99 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="admin-shell">
+    <aside class="admin-sidebar">
+        <div class="d-flex flex-column gap-2">
+            <h5>Corte de caja</h5>
+            <p class="text-muted small mb-3">Resumen de ventas por día</p>
+            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-sm btn-outline-light w-100">Volver al panel</a>
+        </div>
+        <ul class="admin-nav">
+            <li><a href="{{ url_for('admin_cash', fecha=selected_date) }}" class="active">📅 {{ selected_date }}</a></li>
+        </ul>
+    </aside>
+
+    <section class="admin-main">
+        <div class="mb-4 d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <h3 class="mb-1">Corte de caja</h3>
+                <p class="mb-0 text-muted">Consulta ventas de un día específico con detalle por pedido.</p>
+            </div>
+        </div>
+
+        <form method="get" class="row g-3 mb-4 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label">Fecha del corte</label>
+                <input type="date" name="fecha" class="form-control" value="{{ selected_date }}">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Estado</label>
+                <select name="status" class="form-select">
+                    <option value="completado" {% if status_filter == 'completado' %}selected{% endif %}>Solo completados</option>
+                    <option value="todos" {% if status_filter == 'todos' %}selected{% endif %}>Todos los estados</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button class="btn btn-primary w-100" type="submit">Generar corte</button>
+            </div>
+        </form>
+
+        <div class="dashboard-kpis mb-4">
+            <div class="kpi-card">
+                <small>Total de ventas</small>
+                <h3 class="mb-1">${{ '%.2f'|format(total_ventas) }}</h3>
+                <p class="text-muted small mb-0">Suma de importes de pedidos</p>
+            </div>
+            <div class="kpi-card">
+                <small>Número de pedidos</small>
+                <h3 class="mb-1">{{ total_pedidos }}</h3>
+                <p class="text-muted small mb-0">Registros en el periodo</p>
+            </div>
+            <div class="kpi-card">
+                <small>Ticket promedio</small>
+                <h3 class="mb-1">${{ '%.2f'|format(ticket_promedio) }}</h3>
+                <p class="text-muted small mb-0">Total / pedidos</p>
+            </div>
+        </div>
+
+        <div class="admin-table-wrapper">
+            <h5 class="mb-3">Detalle de pedidos</h5>
+            <div class="table-responsive">
+                <table class="table table-dark table-striped align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Hora</th>
+                            <th>Mesa</th>
+                            <th>Estado</th>
+                            <th>Artículos</th>
+                            <th>Total</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for o in orders %}
+                        <tr>
+                            <td>{{ o.created_at.strftime('%H:%M') if o.created_at else '--' }}</td>
+                            <td>Mesa {{ o.mesa_num }}</td>
+                            <td><span class="badge text-bg-info text-uppercase">{{ o.status }}</span></td>
+                            <td>{{ o["items"]|length }}</td>
+                            <td>${{ '%.2f'|format(o.total|default(0, true)) }}</td>
+                            <td class="text-end">
+                                <a href="{{ url_for('view_order', order_id=o._id|string) }}" class="btn btn-sm btn-outline-light">Ver</a>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-4">
+                                No hay pedidos registrados para esta fecha y filtro seleccionado.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+

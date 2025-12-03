@@ -8,6 +8,7 @@ from werkzeug.utils import secure_filename
 from pymongo import MongoClient
 from dotenv import load_dotenv
 from bson.objectid import ObjectId
+from functools import wraps
 
 load_dotenv()
 
@@ -83,20 +84,46 @@ def admin():
     
     return render_template("login.html")
 
-def require_admin():
-    """Verificar que el usuario esté autenticado como admin"""
-    if not session.get('admin_logged_in'):
-        flash("Debes iniciar sesión como administrador", "warning")
-        return redirect(url_for("admin"))
-    return None
+def admin_required(view_func):
+    """Decorator que protege rutas del panel admin."""
+    @wraps(view_func)
+    def wrapper(*args, **kwargs):
+        if not session.get('admin_logged_in'):
+            flash("Debes iniciar sesión como administrador", "warning")
+            return redirect(url_for("admin"))
+        return view_func(*args, **kwargs)
+    return wrapper
 
 @app.route("/admin/dashboard")
+@admin_required
 def admin_dashboard():
-    require_admin()
-    categories = list(categories_col.find().sort("order", 1))
-    return render_template("admin.html", categories=categories)
+    search_query = request.args.get("q", "").strip()
+    category_filter = {}
+    if search_query:
+        category_filter["name"] = {"$regex": search_query, "$options": "i"}
+    total_categories = categories_col.count_documents({})
+    categories = list(categories_col.find(category_filter).sort("order", 1))
+    stats = {
+        "categories": total_categories,
+        "products": products_col.count_documents({}),
+        "active_orders": orders_col.count_documents({"status": {"$in": ["pendiente", "en_preparacion"]}}),
+        "pending_media": categories_col.count_documents({
+            "$or": [{"image": {"$exists": False}}, {"image": ""}]
+        })
+    }
+    latest_orders = list(orders_col.find().sort("created_at", -1).limit(3))
+    latest_products = list(products_col.find().sort("_id", -1).limit(3))
+    return render_template(
+        "admin.html",
+        categories=categories,
+        stats=stats,
+        latest_orders=latest_orders,
+        latest_products=latest_products,
+        search_query=search_query
+    )
 
 @app.route("/admin/logout")
+@admin_required
 def admin_logout():
     """Cerrar sesión de administrador"""
     session.pop('admin_logged_in', None)
@@ -107,8 +134,8 @@ def admin_logout():
 # CRUD Categorías
 # -------------------------
 @app.route("/admin/category/new", methods=["GET", "POST"])
+@admin_required
 def new_category():
-    require_admin()
     if request.method == "POST":
         name = request.form.get("name")
         description = request.form.get("description", "")
@@ -141,8 +168,8 @@ def new_category():
     return render_template("category_form.html", action="Crear", category={})
 
 @app.route("/admin/category/edit/<id>", methods=["GET", "POST"])
+@admin_required
 def edit_category(id):
-    require_admin()
     cat = categories_col.find_one({"_id": ObjectId(id)})
 
     if not cat:
@@ -181,8 +208,8 @@ def edit_category(id):
     return render_template("category_form.html", action="Editar", category=cat)
 
 @app.route("/admin/category/delete/<id>", methods=["POST"])
+@admin_required
 def delete_category(id):
-    require_admin()
     categories_col.delete_one({"_id": ObjectId(id)})
     flash("Categoría eliminada", "success")
     return redirect(url_for("admin_dashboard"))
@@ -191,8 +218,8 @@ def delete_category(id):
 # CRUD Productos
 # -------------------------
 @app.route("/admin/products/<category_id>")
+@admin_required
 def manage_products(category_id):
-    require_admin()
     try:
         cat_id = ObjectId(category_id)
     except:
@@ -208,8 +235,8 @@ def manage_products(category_id):
     return render_template("manage_products.html", category=category, products=products)
 
 @app.route("/admin/product/new/<category_id>", methods=["GET", "POST"])
+@admin_required
 def new_product(category_id):
-    require_admin()
     try:
         cat_id = ObjectId(category_id)
     except:
@@ -291,8 +318,8 @@ def new_product(category_id):
     return render_template("product_form.html", action="Crear", product={}, category=category)
 
 @app.route("/admin/product/edit/<id>", methods=["GET", "POST"])
+@admin_required
 def edit_product(id):
-    require_admin()
     try:
         product_id = ObjectId(id)
     except:
@@ -377,8 +404,8 @@ def edit_product(id):
     return render_template("product_form.html", action="Editar", product=product, category=category)
 
 @app.route("/admin/product/delete/<id>", methods=["POST"])
+@admin_required
 def delete_product(id):
-    require_admin()
     try:
         product_id = ObjectId(id)
     except:
@@ -525,9 +552,9 @@ def generate_qr(mesa_num):
     return render_template("qr_display.html", mesa_num=mesa_num, qr_image=img_str, mesa_url=mesa_url)
 
 @app.route("/admin/qr-codes")
+@admin_required
 def admin_qr_codes():
     """Panel para generar y ver todos los códigos QR"""
-    require_admin()
     return render_template("admin_qr_codes.html")
 
 # ---------------------------------
@@ -773,9 +800,9 @@ def order_confirmation():
 # ADMINISTRACIÓN DE PEDIDOS
 # ---------------------------------
 @app.route("/admin/orders")
+@admin_required
 def admin_orders():
     """Panel de administración para ver pedidos activos"""
-    require_admin()
     # Obtener pedidos pendientes y en preparación
     active_orders = list(orders_col.find({
         "status": {"$in": ["pendiente", "en_preparacion"]}
@@ -794,9 +821,9 @@ def admin_orders():
                          completed_orders=completed_orders)
 
 @app.route("/admin/order/<order_id>/update-status", methods=["POST"])
+@admin_required
 def update_order_status(order_id):
     """Actualizar estado de un pedido"""
-    require_admin()
     new_status = request.form.get("status")
     valid_statuses = ["pendiente", "en_preparacion", "listo", "completado"]
     
@@ -813,9 +840,9 @@ def update_order_status(order_id):
     return redirect(url_for("admin_orders"))
 
 @app.route("/admin/order/<order_id>")
+@admin_required
 def view_order(order_id):
     """Ver detalles de un pedido específico"""
-    require_admin()
     try:
         order = orders_col.find_one({"_id": ObjectId(order_id)})
         if not order:
@@ -826,6 +853,45 @@ def view_order(order_id):
     except:
         flash("ID de pedido inválido", "danger")
         return redirect(url_for("admin_orders"))
+
+@app.route("/admin/cash")
+@admin_required
+def admin_cash():
+    """Vista de corte de caja por día."""
+    from datetime import timedelta
+    # Fecha seleccionada (formato YYYY-MM-DD)
+    fecha_str = request.args.get("fecha")
+    today = datetime.now().date()
+    try:
+        selected_date = datetime.strptime(fecha_str, "%Y-%m-%d").date() if fecha_str else today
+    except ValueError:
+        selected_date = today
+
+    start_dt = datetime.combine(selected_date, datetime.min.time())
+    end_dt = start_dt + timedelta(days=1)
+
+    status_filter = request.args.get("status", "completado")
+    query = {
+        "created_at": {"$gte": start_dt, "$lt": end_dt}
+    }
+    if status_filter == "completado":
+        query["status"] = "completado"
+
+    orders = list(orders_col.find(query).sort("created_at", 1))
+
+    total_ventas = sum(float(o.get("total", 0) or 0) for o in orders)
+    total_pedidos = len(orders)
+    ticket_promedio = total_ventas / total_pedidos if total_pedidos > 0 else 0
+
+    return render_template(
+        "admin_cash.html",
+        orders=orders,
+        total_ventas=total_ventas,
+        total_pedidos=total_pedidos,
+        ticket_promedio=ticket_promedio,
+        selected_date=selected_date.strftime("%Y-%m-%d"),
+        status_filter=status_filter,
+    )
 
 # ---------------------------------
 # MAIN
