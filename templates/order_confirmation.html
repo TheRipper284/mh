@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="text-center">
+    <div class="card bg-dark text-white p-5 mx-auto" style="max-width: 600px;">
+        <div class="mb-4">
+            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-success">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+                <path d="M8 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </div>
+        <h2 class="text-success mb-3">¡Pedido Enviado Exitosamente!</h2>
+        <p class="mb-4">Tu pedido de la <strong>Mesa {{ mesa_num }}</strong> ha sido enviado a cocina y está siendo preparado.</p>
+        <p class="text-muted mb-4">Recibirás una notificación cuando tu pedido esté listo.</p>
+        
+        <div class="d-grid gap-2">
+            <a href="{{ url_for('index') }}" class="btn btn-primary btn-lg">
+                Hacer Otro Pedido
+            </a>
+            <a href="{{ url_for('view_cart') }}" class="btn btn-outline-light">
+                Ver Carrito
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

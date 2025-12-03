@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="text-white mb-0">Códigos QR para Mesas</h2>
+    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-light">Volver al Panel</a>
+</div>
+
+<div class="alert alert-info">
+    <strong>Instrucciones:</strong> Genera los códigos QR para cada mesa (1-13). Imprime cada código QR y colócalo en la mesa correspondiente.
+</div>
+
+<div class="row g-4">
+    {% for mesa in range(1, 14) %}
+    <div class="col-12 col-md-6 col-lg-4">
+        <div class="card bg-dark text-white">
+            <div class="card-body text-center">
+                <h5 class="card-title">Mesa {{ mesa }}</h5>
+                <a href="{{ url_for('generate_qr', mesa_num=mesa) }}" class="btn btn-primary btn-sm" target="_blank">
+                    Generar QR
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+

@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="text-center">
+    <h2 class="text-white mb-4">Código QR - Mesa {{ mesa_num }}</h2>
+    <div class="card bg-dark text-white p-4 d-inline-block">
+        <img src="data:image/png;base64,{{ qr_image }}" alt="QR Code Mesa {{ mesa_num }}" class="img-fluid mb-3" style="max-width: 300px;">
+        <p class="mb-2"><strong>Mesa:</strong> {{ mesa_num }}</p>
+        <p class="mb-2"><strong>URL:</strong> <a href="{{ mesa_url }}" class="text-info">{{ mesa_url }}</a></p>
+        <p class="text-muted small">Escanea este código QR para acceder al menú de la mesa {{ mesa_num }}</p>
+    </div>
+    <div class="mt-4">
+        <a href="{{ url_for('admin_qr_codes') }}" class="btn btn-outline-light">Volver a códigos QR</a>
+    </div>
+</div>
+{% endblock %}
+

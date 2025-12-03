@@ -1,23 +1,47 @@
 {% extends "layout.html" %}
 {% block content %}
-<div class="row">
-<div class="col-md-6">
+<div class="row mb-4">
+<div class="col-md-8">
     <h3>Panel de Administración</h3>
-    <p>Editar el inicio / categorías</p>
+    <p>Gestiona categorías, productos, pedidos y códigos QR</p>
 </div>
-<div class="col-md-6 text-end">
-    <form method="POST" action="{{ url_for('admin') }}" class="d-inline-block">
-    <input name="username" placeholder="user" required class="form-control d-inline w-auto" />
-    <input name="password" placeholder="pass" type="password" required class="form-control d-inline w-auto" />
-    <button class="btn btn-primary">Iniciar</button>
-    </form>
+<div class="col-md-4 text-end">
+    <a href="{{ url_for('admin_logout') }}" class="btn btn-outline-danger">
+        Cerrar Sesión
+    </a>
 </div>
+</div>
+
+<!-- Enlaces rápidos -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <a href="{{ url_for('admin_orders') }}" class="btn btn-info w-100 mb-2">
+            <strong>📋 Pedidos</strong><br>
+            <small>Ver pedidos activos</small>
+        </a>
+    </div>
+    <div class="col-md-3">
+        <a href="{{ url_for('admin_qr_codes') }}" class="btn btn-primary w-100 mb-2">
+            <strong>📱 Códigos QR</strong><br>
+            <small>Generar QR para mesas</small>
+        </a>
+    </div>
+    <div class="col-md-3">
+        <a href="{{ url_for('new_category') }}" class="btn btn-success w-100 mb-2">
+            <strong>➕ Nueva Categoría</strong>
+        </a>
+    </div>
+    <div class="col-md-3">
+        <a href="{{ url_for('index') }}" class="btn btn-outline-light w-100 mb-2">
+            <strong>🏠 Ver Menú</strong>
+        </a>
+    </div>
 </div>
 
 <hr>
 
 <div class="mb-3">
-<a href="{{ url_for('new_category') }}" class="btn btn-success">+ Nueva Categoría</a>
+<h4>Categorías</h4>
 </div>
 
 <table class="table table-dark table-striped">

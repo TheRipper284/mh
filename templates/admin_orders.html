@@ -1,0 +1,146 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="text-white mb-0">Gestión de Pedidos</h2>
+    <div>
+        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-light me-2">Panel Principal</a>
+        <a href="{{ url_for('admin_qr_codes') }}" class="btn btn-outline-light">Códigos QR</a>
+    </div>
+</div>
+
+<!-- Pedidos Activos -->
+<div class="card bg-dark text-white mb-4">
+    <div class="card-header">
+        <h4 class="mb-0">Pedidos Activos</h4>
+    </div>
+    <div class="card-body">
+        {% if active_orders %}
+        <div class="table-responsive">
+            <table class="table table-dark table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Mesa</th>
+                        <th>Items</th>
+                        <th>Total</th>
+                        <th>Estado</th>
+                        <th>Hora</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in active_orders %}
+                    <tr>
+                        <td><small>{{ order._id|string|truncate(8, True, '') }}</small></td>
+                        <td><strong>Mesa {{ order.mesa_num }}</strong></td>
+                        <td>
+                            <small>
+                                {% set order_items = order.get('items', []) %}
+                                {% for item in order_items %}
+                                    {% if loop.index <= 3 %}
+                                        {{ item.quantity }}x {{ item.product_name }}{% if item.size %} ({{ item.size }}){% endif %}<br>
+                                    {% endif %}
+                                {% endfor %}
+                                {% if order_items|length > 3 %}
+                                    <em>+{{ order_items|length - 3 }} más</em>
+                                {% endif %}
+                            </small>
+                        </td>
+                        <td><strong>${{ "%.2f"|format(order.total) }}</strong></td>
+                        <td>
+                            <span class="badge 
+                                {% if order.status == 'pendiente' %}bg-warning
+                                {% elif order.status == 'en_preparacion' %}bg-info
+                                {% elif order.status == 'listo' %}bg-success
+                                {% else %}bg-secondary{% endif %}">
+                                {{ order.status|title }}
+                            </span>
+                        </td>
+                        <td><small>{{ order.created_at.strftime('%H:%M') }}</small></td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{{ url_for('view_order', order_id=order._id|string) }}" class="btn btn-outline-light">Ver</a>
+                                <div class="btn-group btn-group-sm">
+                                    <button type="button" class="btn btn-outline-light dropdown-toggle" data-bs-toggle="dropdown">
+                                        Estado
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-dark">
+                                        <li>
+                                            <form method="POST" action="{{ url_for('update_order_status', order_id=order._id|string) }}" class="d-inline">
+                                                <input type="hidden" name="status" value="pendiente">
+                                                <button type="submit" class="dropdown-item">Pendiente</button>
+                                            </form>
+                                        </li>
+                                        <li>
+                                            <form method="POST" action="{{ url_for('update_order_status', order_id=order._id|string) }}" class="d-inline">
+                                                <input type="hidden" name="status" value="en_preparacion">
+                                                <button type="submit" class="dropdown-item">En Preparación</button>
+                                            </form>
+                                        </li>
+                                        <li>
+                                            <form method="POST" action="{{ url_for('update_order_status', order_id=order._id|string) }}" class="d-inline">
+                                                <input type="hidden" name="status" value="listo">
+                                                <button type="submit" class="dropdown-item">Listo</button>
+                                            </form>
+                                        </li>
+                                        <li>
+                                            <form method="POST" action="{{ url_for('update_order_status', order_id=order._id|string) }}" class="d-inline">
+                                                <input type="hidden" name="status" value="completado">
+                                                <button type="submit" class="dropdown-item">Completado</button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted text-center">No hay pedidos activos</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Pedidos Completados Recientes -->
+<div class="card bg-dark text-white">
+    <div class="card-header">
+        <h4 class="mb-0">Pedidos Completados (Últimas 24 horas)</h4>
+    </div>
+    <div class="card-body">
+        {% if completed_orders %}
+        <div class="table-responsive">
+            <table class="table table-dark table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Mesa</th>
+                        <th>Total</th>
+                        <th>Hora</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in completed_orders %}
+                    <tr>
+                        <td><small>{{ order._id|string|truncate(8, True, '') }}</small></td>
+                        <td><strong>Mesa {{ order.mesa_num }}</strong></td>
+                        <td><strong>${{ "%.2f"|format(order.total) }}</strong></td>
+                        <td><small>{{ order.created_at.strftime('%H:%M - %d/%m') }}</small></td>
+                        <td>
+                            <a href="{{ url_for('view_order', order_id=order._id|string) }}" class="btn btn-sm btn-outline-light">Ver</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted text-center">No hay pedidos completados recientes</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+

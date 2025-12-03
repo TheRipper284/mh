@@ -1,5 +1,11 @@
 {% extends "layout.html" %}
 {% block content %}
+{% if mesa_num %}
+<div class="alert alert-info text-center mb-4">
+    <strong>Mesa {{ mesa_num }}</strong> - Bienvenido al menú digital
+</div>
+{% endif %}
+
 <div class="logo-wrapper">
     <img src="{{ url_for('static', filename='uploads/logo2.png') }}" alt="Logo">
 </div>

@@ -17,27 +17,32 @@
             <div class="collapse navbar-collapse" id="mainNavbar">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="{{ url_for('index') }}">Inicio</a>
+                        <a class="nav-link" href="{{ url_for('index') }}" id="nav-index">Inicio</a>
+                    </li>
+                    {% if session.get('mesa_num') %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('view_cart') }}" id="nav-cart">
+                            <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16" style="margin-right: 4px;">
+                                <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.618 4l1.5 7h7.764l1.5-7H3.618zM5 14a1 1 0 1 1 2 0 1 1 0 0 1-2 0zm7 0a1 1 0 1 1 2 0 1 1 0 0 1-2 0z"/>
+                            </svg>
+                            Carrito
+                            <span class="badge bg-success ms-1" id="cart-badge">
+                                {% if session.get('cart') %}
+                                    {{ session.cart|length }}
+                                {% else %}
+                                    0
+                                {% endif %}
+                            </span>
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('admin') }}">Admin</a>
+                        <span class="nav-link text-muted">Mesa {{ session.get('mesa_num') }}</span>
                     </li>
-                    {# Ejemplo de dropdown, personalízalo si quieres más enlaces #}
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Más
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-dark">
-                            <li><a class="dropdown-item" href="{{ url_for('index') }}">Ver menú</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{{ url_for('admin') }}">Panel admin</a></li>
-                        </ul>
+                    {% endif %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin') }}" id="nav-admin">Admin</a>
                     </li>
                 </ul>
-                <form class="d-flex" role="search">
-                    <input class="form-control me-2" type="search" placeholder="Buscar" aria-label="Buscar">
-                    <button class="btn btn-outline-success" type="submit">Buscar</button>
-                </form>
             </div>
         </div>
     </nav>
