@@ -27,10 +27,10 @@
 <div class="row g-3">
     {% for p in products %}
     <div class="col-4 col-md-4 col-lg-3">
-        <div class="flip-card-container">
-            <div class="flip-card" onclick="this.classList.toggle('flipped')">
-                <!-- Frente de la carta -->
-                <div class="flip-card-front card card-category text-white h-100">
+        <div class="zoom-card-container">
+            <div class="zoom-card card card-category text-white h-100" onclick="this.classList.toggle('zoomed')">
+                <!-- Contenido principal (siempre visible) -->
+                <div class="zoom-card-front">
                     <div class="card-img-wrap">
                         {% if p.image %}
                         <img src="{{ p.image }}" class="card-img-top" alt="{{ p.name }}">
@@ -43,8 +43,8 @@
                     </div>
                 </div>
                 
-                <!-- Reverso de la carta -->
-                <div class="flip-card-back card card-category text-white h-100 d-flex flex-column justify-content-center p-3">
+                <!-- Contenido expandido (se muestra al ampliar) -->
+                <div class="zoom-card-back">
                     <h5 class="card-title text-center mb-3">{{ p.name }}</h5>
                     
                     {% if category.name.upper() == "PIZZAS" %}
@@ -124,6 +124,35 @@
                                 {% if p.price_h4 %}<option value="h4">H4 - ${{ p.price_h4 }}</option>{% endif %}
                             </select>
                         </div>
+                        <!-- Opciones adicionales para pizzas -->
+                        <div class="mb-2 text-start small">
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="division_{{ p._id|string }}" value="1">
+                                <label class="form-check-label text-white" for="division_{{ p._id|string }}">
+                                    División (+$10)
+                                </label>
+                            </div>
+                            <!-- Selector de segunda mitad (solo visible cuando división está marcada) -->
+                            <div id="second_half_container_{{ p._id|string }}" style="display: none;" class="mb-2">
+                                <label class="form-label text-white small">Segunda mitad:</label>
+                                <select class="form-select form-select-sm" id="second_half_{{ p._id|string }}">
+                                    <option value="">Selecciona otra pizza</option>
+                                    {% for pizza in all_pizzas %}
+                                    {% if pizza._id|string != p._id|string %}
+                                    <option value="{{ pizza._id|string }}" data-name="{{ pizza.name }}">
+                                        {{ pizza.name }}
+                                    </option>
+                                    {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="orilla_queso_{{ p._id|string }}" value="1">
+                                <label class="form-check-label text-white" for="orilla_queso_{{ p._id|string }}" id="orilla_queso_label_{{ p._id|string }}">
+                                    Orilla de queso
+                                </label>
+                            </div>
+                        </div>
                         {% endif %}
                         <button class="btn btn-success btn-sm add-to-cart-btn" 
                                 data-product-id="{{ p._id|string }}"
@@ -137,7 +166,7 @@
                     </div>
                     {% endif %}
                     
-                    <p class="text-center small text-muted mt-auto mb-0" style="font-size: 0.75rem;">Click para voltear</p>
+                    <p class="text-center small text-muted mt-auto mb-0" style="font-size: 0.75rem;">Click para ampliar</p>
                 </div>
             </div>
         </div>
@@ -223,92 +252,126 @@
 {% endif %}
 
 <style>
-.flip-card-container {
-    perspective: 1000px;
+.zoom-card-container {
     height: 100%;
+    position: relative;
+    z-index: 1;
 }
 
-.flip-card {
+.zoom-card {
     position: relative;
     width: 100%;
     height: 100%;
     min-height: 260px;
-    transform-style: preserve-3d;
-    transition: transform 0.6s;
+    transition: transform 0.4s ease, z-index 0.4s;
     cursor: pointer;
+    overflow: hidden;
 }
 
-.flip-card.flipped {
-    transform: rotateY(180deg);
+.zoom-card.zoomed {
+    transform: scale(1.15);
+    z-index: 10;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
-.flip-card-front,
-.flip-card-back {
-    position: absolute;
+.zoom-card-front {
     width: 100%;
     height: 100%;
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
+    transition: opacity 0.3s ease;
 }
 
-.flip-card-back {
-    transform: rotateY(180deg);
+.zoom-card-back {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s;
     overflow-y: auto;
+    background: inherit;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
-/* Responsive para flip cards */
+.zoom-card.zoomed .zoom-card-front {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.zoom-card.zoomed .zoom-card-back {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Responsive para zoom cards */
 @media (max-width: 768px) {
-    .flip-card {
+    .zoom-card {
         min-height: 220px;
+    }
+    
+    .zoom-card.zoomed {
+        transform: scale(1.2);
     }
 }
 
 @media (max-width: 576px) {
-    .flip-card {
+    .zoom-card {
         min-height: 200px;
     }
     
-    .flip-card-back {
+    .zoom-card.zoomed {
+        transform: scale(1.25);
+    }
+    
+    .zoom-card-back {
         padding: 1rem !important;
     }
     
-    .flip-card-back h5 {
+    .zoom-card-back h5 {
         font-size: 1rem !important;
         margin-bottom: 0.75rem !important;
     }
     
-    .flip-card-back h6 {
+    .zoom-card-back h6 {
         font-size: 0.9rem !important;
     }
     
-    .flip-card-back .fs-3 {
+    .zoom-card-back .fs-3 {
         font-size: 1.5rem !important;
     }
     
-    .flip-card-back ul {
+    .zoom-card-back ul {
         font-size: 0.8rem;
     }
     
-    .flip-card-back .small {
+    .zoom-card-back .small {
         font-size: 0.75rem !important;
     }
 }
 
 @media (max-width: 400px) {
-    .flip-card {
+    .zoom-card {
         min-height: 180px;
     }
     
-    .flip-card-back {
+    .zoom-card.zoomed {
+        transform: scale(1.3);
+    }
+    
+    .zoom-card-back {
         padding: 0.75rem !important;
     }
     
-    .flip-card-back h5 {
+    .zoom-card-back h5 {
         font-size: 0.95rem !important;
         margin-bottom: 0.5rem !important;
     }
     
-    .flip-card-back .fs-3 {
+    .zoom-card-back .fs-3 {
         font-size: 1.3rem !important;
     }
 }
@@ -320,9 +383,72 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Precios de orilla de queso por tamaño
+    const orillaPrices = {
+        "individual": 15,
+        "chica": 20,
+        "mediana": 25,
+        "grande": 30,
+        "h4": 40
+    };
+    
+    // Mostrar/ocultar selector de segunda mitad cuando se marca división
+    document.querySelectorAll('input[id^="division_"]').forEach(checkbox => {
+        checkbox.addEventListener('change', function(e) {
+            e.stopPropagation();
+            const productId = this.id.replace('division_', '');
+            const secondHalfContainer = document.getElementById('second_half_container_' + productId);
+            const secondHalfSelect = document.getElementById('second_half_' + productId);
+            
+            if (this.checked) {
+                secondHalfContainer.style.display = 'block';
+            } else {
+                secondHalfContainer.style.display = 'none';
+                if (secondHalfSelect) {
+                    secondHalfSelect.value = '';
+                }
+            }
+        });
+    });
+    
+    // Actualizar precio de orilla de queso cuando cambia el tamaño
+    document.querySelectorAll('select[id^="size_"]').forEach(select => {
+        select.addEventListener('change', function(e) {
+            e.stopPropagation();
+            const productId = this.id.replace('size_', '');
+            const selectedSize = this.value;
+            const orillaLabel = document.getElementById('orilla_queso_label_' + productId);
+            
+            if (orillaLabel && selectedSize in orillaPrices) {
+                orillaLabel.textContent = `Orilla de queso (+$${orillaPrices[selectedSize]})`;
+            }
+        });
+        
+        // Actualizar precio inicial
+        const productId = select.id.replace('size_', '');
+        const selectedSize = select.value;
+        const orillaLabel = document.getElementById('orilla_queso_label_' + productId);
+        if (orillaLabel && selectedSize in orillaPrices) {
+            orillaLabel.textContent = `Orilla de queso (+$${orillaPrices[selectedSize]})`;
+        }
+    });
+    
+    // Prevenir que los elementos interactivos activen el zoom de la card
+    document.querySelectorAll('.zoom-card select, .zoom-card input[type="checkbox"], .zoom-card label, .zoom-card button').forEach(element => {
+        element.addEventListener('click', function(e) {
+            e.stopPropagation(); // Evitar que se active el zoom
+        });
+        // También prevenir en el evento change para los selects
+        if (element.tagName === 'SELECT') {
+            element.addEventListener('change', function(e) {
+                e.stopPropagation();
+            });
+        }
+    });
+    
     document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
         btn.addEventListener('click', function(e) {
-            e.stopPropagation(); // Evitar que se active el flip
+            e.stopPropagation(); // Evitar que se active el zoom
             
             const productId = this.getAttribute('data-product-id');
             const hasSize = this.getAttribute('data-has-size') === 'true';
@@ -335,11 +461,46 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
             
+            // Obtener opciones de división y orilla de queso para pizzas
+            let division = '';
+            let orilla_queso = '';
+            let second_half_id = '';
+            if (hasSize) {
+                const divisionCheck = document.getElementById('division_' + productId);
+                const orillaQuesoCheck = document.getElementById('orilla_queso_' + productId);
+                if (divisionCheck && divisionCheck.checked) {
+                    division = '1';
+                    // Obtener segunda mitad si está seleccionada
+                    const secondHalfSelect = document.getElementById('second_half_' + productId);
+                    if (secondHalfSelect && secondHalfSelect.value) {
+                        second_half_id = secondHalfSelect.value;
+                    }
+                }
+                if (orillaQuesoCheck && orillaQuesoCheck.checked) {
+                    orilla_queso = '1';
+                }
+            }
+            
+            // Validar que si hay división, se haya seleccionado segunda mitad
+            if (division && !second_half_id) {
+                alert('Por favor selecciona la segunda mitad de la pizza para la división.');
+                return;
+            }
+            
             const formData = new FormData();
             formData.append('product_id', productId);
             formData.append('quantity', '1');
             if (size) {
                 formData.append('size', size);
+            }
+            if (division) {
+                formData.append('division', division);
+                if (second_half_id) {
+                    formData.append('second_half_id', second_half_id);
+                }
+            }
+            if (orilla_queso) {
+                formData.append('orilla_queso', orilla_queso);
             }
             
             // Deshabilitar botón mientras se procesa

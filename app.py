@@ -493,6 +493,13 @@ def show_category(id):
 
     # Obtener número de mesa de la sesión
     mesa_num = session.get('mesa_num', None)
+    
+    # Si es la categoría de pizzas, obtener todas las pizzas para el selector de división
+    all_pizzas = []
+    if category.get("name", "").upper() == "PIZZAS":
+        pizza_category = categories_col.find_one({"name": {"$regex": "^PIZZAS$", "$options": "i"}})
+        if pizza_category:
+            all_pizzas = list(products_col.find({"category_id": pizza_category["_id"]}).sort("name", 1))
 
     return render_template(
         "category_view.html",
@@ -502,7 +509,8 @@ def show_category(id):
         page=page,
         total_pages=total_pages,
         total_products=total_products,
-        mesa_num=mesa_num
+        mesa_num=mesa_num,
+        all_pizzas=all_pizzas if category.get("name", "").upper() == "PIZZAS" else []
     )
 
 # ---------------------------------
@@ -609,6 +617,9 @@ def add_to_cart():
     product_id = request.form.get("product_id")
     quantity = int(request.form.get("quantity", 1))
     size = request.form.get("size", "")  # Para pizzas: individual, chica, mediana, etc.
+    division = request.form.get("division", "") == "1"  # División: +$10
+    orilla_queso = request.form.get("orilla_queso", "") == "1"  # Orilla de queso: precio según tamaño
+    second_half_id = request.form.get("second_half_id", "")  # ID de la segunda mitad en división
     
     try:
         product = products_col.find_one({"_id": ObjectId(product_id)})
@@ -618,23 +629,78 @@ def add_to_cart():
         category = categories_col.find_one({"_id": product.get("category_id")})
         category_name = category.get("name", "").upper() if category else ""
         
-        # Determinar precio según categoría y tamaño
+        # Determinar precio base según categoría y tamaño
+        base_price = 0
         if category_name == "PIZZAS" and size:
             price_field = f"price_{size.lower()}"
-            price = float(product.get(price_field, 0))
-            if not price:
+            base_price = float(product.get(price_field, 0))
+            if not base_price:
                 return jsonify({"success": False, "message": f"Tamaño {size} no disponible"}), 400
         else:
-            price = float(product.get("price", 0))
-            if not price:
+            base_price = float(product.get("price", 0))
+            if not base_price:
                 return jsonify({"success": False, "message": "Precio no disponible"}), 400
+        
+        # Si hay división, obtener precio de la segunda mitad
+        second_half_price = 0
+        second_half_name = ""
+        if division and second_half_id:
+            second_product = products_col.find_one({"_id": ObjectId(second_half_id)})
+            if not second_product:
+                return jsonify({"success": False, "message": "Segunda mitad no encontrada"}), 404
+            
+            if category_name == "PIZZAS" and size:
+                price_field = f"price_{size.lower()}"
+                second_half_price = float(second_product.get(price_field, 0))
+                if not second_half_price:
+                    return jsonify({"success": False, "message": f"Tamaño {size} no disponible para segunda mitad"}), 400
+            
+            second_half_name = second_product.get('name', '')
+        
+        # Calcular precio adicional para pizzas
+        additional_price = 0
+        orilla_queso_price = 0
+        if category_name == "PIZZAS":
+            # División: +$10
+            if division:
+                additional_price += 10
+            
+            # Orilla de queso: precio según tamaño
+            if orilla_queso:
+                orilla_prices = {
+                    "individual": 15,
+                    "chica": 20,
+                    "mediana": 25,
+                    "grande": 30,
+                    "h4": 40
+                }
+                if size.lower() in orilla_prices:
+                    orilla_queso_price = orilla_prices[size.lower()]
+                    additional_price += orilla_queso_price
+        
+        # Precio final: primera mitad + adicionales (NO se cobra la segunda mitad, solo el costo de división)
+        price = base_price + additional_price
         
         # Inicializar carrito si no existe
         if 'cart' not in session:
             session['cart'] = {}
         
         cart = session['cart']
-        cart_key = f"{product_id}_{size}" if size else product_id
+        # Crear cart_key único incluyendo opciones para pizzas
+        if category_name == "PIZZAS":
+            options_key = f"{'D' if division else ''}{'O' if orilla_queso else ''}"
+            if division and second_half_id:
+                # Incluir segundo producto en el key para división
+                cart_key = f"{product_id}_{second_half_id}_{size}_{options_key}"
+            else:
+                cart_key = f"{product_id}_{size}_{options_key}" if options_key else f"{product_id}_{size}"
+        else:
+            cart_key = f"{product_id}_{size}" if size else product_id
+        
+        # Crear nombre para mostrar en el carrito
+        display_name = product.get('name')
+        if division and second_half_name:
+            display_name = f"{product.get('name')} / {second_half_name}"
         
         # Agregar o actualizar item en carrito
         if cart_key in cart:
@@ -642,10 +708,15 @@ def add_to_cart():
         else:
             cart[cart_key] = {
                 'product_id': product_id,
-                'name': product.get('name'),
+                'name': display_name,
                 'quantity': quantity,
                 'price': price,
                 'size': size,
+                'division': division if category_name == "PIZZAS" else False,
+                'orilla_queso': orilla_queso if category_name == "PIZZAS" else False,
+                'orilla_queso_price': orilla_queso_price if category_name == "PIZZAS" else 0,
+                'second_half_id': second_half_id if division else None,
+                'second_half_name': second_half_name if division else None,
                 'subtotal': price * quantity
             }
         
@@ -671,6 +742,9 @@ def update_cart():
     quantity = int(request.form.get("quantity", 1))
     
     if quantity <= 0:
+        # Si es una petición AJAX, devolver JSON
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({"success": False, "message": "La cantidad debe ser mayor a 0"}), 400
         return redirect(url_for("remove_from_cart", cart_key=cart_key))
     
     cart = session.get('cart', {})
@@ -679,7 +753,20 @@ def update_cart():
         cart[cart_key]['subtotal'] = cart[cart_key]['quantity'] * cart[cart_key]['price']
         session['cart'] = cart
         session.modified = True
+        
+        # Calcular total
+        total = sum(float(item.get('subtotal', 0)) for item in cart.values())
+        
+        # Si es una petición AJAX, devolver JSON
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({
+                "success": True,
+                "message": "Cantidad actualizada",
+                "subtotal": cart[cart_key]['subtotal'],
+                "total": total
+            })
     
+    # Redirigir si no es AJAX
     return redirect(url_for("view_cart"))
 
 @app.route("/cart/remove/<cart_key>")
@@ -764,6 +851,11 @@ def submit_order():
                     'quantity': item['quantity'],
                     'price': item['price'],
                     'size': item.get('size', ''),
+                    'division': item.get('division', False),
+                    'orilla_queso': item.get('orilla_queso', False),
+                    'orilla_queso_price': item.get('orilla_queso_price', 0),
+                    'second_half_id': str(item.get('second_half_id', '')) if item.get('second_half_id') else None,
+                    'second_half_name': item.get('second_half_name', ''),
                     'subtotal': item['subtotal']
                 }
                 order_items.append(order_item)
@@ -867,9 +959,15 @@ def admin_cash():
     except ValueError:
         selected_date = today
 
+    # Filtro estricto: solo pedidos del día seleccionado (no suma días anteriores)
+    # Inicio del día: 00:00:00.000000
     start_dt = datetime.combine(selected_date, datetime.min.time())
+    # Fin del día: inicio del día siguiente (para usar $lt en MongoDB)
     end_dt = start_dt + timedelta(days=1)
 
+    # Filtro de estado:
+    # - "completado" (por defecto): pedidos ya cerrados y cobrados
+    # - "todos": cualquier estado
     status_filter = request.args.get("status", "completado")
     query = {
         "created_at": {"$gte": start_dt, "$lt": end_dt}
@@ -881,14 +979,12 @@ def admin_cash():
 
     total_ventas = sum(float(o.get("total", 0) or 0) for o in orders)
     total_pedidos = len(orders)
-    ticket_promedio = total_ventas / total_pedidos if total_pedidos > 0 else 0
 
     return render_template(
         "admin_cash.html",
         orders=orders,
         total_ventas=total_ventas,
         total_pedidos=total_pedidos,
-        ticket_promedio=ticket_promedio,
         selected_date=selected_date.strftime("%Y-%m-%d"),
         status_filter=status_filter,
     )

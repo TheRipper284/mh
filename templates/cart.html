@@ -23,8 +23,17 @@
             <tr>
                 <td>
                     <strong>{{ item.name }}</strong>
-                    {% if item.category_name %}
+                    {% if item.division and item.second_half_name %}
+                    <br><small class="text-muted">Pizza dividida: {{ item.name.split(' / ')[0] }} / {{ item.second_half_name }}</small>
+                    {% elif item.category_name %}
                     <br><small class="text-muted">{{ item.category_name }}</small>
+                    {% endif %}
+                    {% if item.division or item.orilla_queso %}
+                    <br>
+                    <small class="text-info">
+                        {% if item.division %}<span class="badge bg-warning text-dark">División (+$10)</span>{% endif %}
+                        {% if item.orilla_queso %}<span class="badge bg-success">Orilla de queso (+${{ "%.2f"|format(item.orilla_queso_price) }})</span>{% endif %}
+                    </small>
                     {% endif %}
                 </td>
                 <td>
@@ -35,16 +44,16 @@
                     {% endif %}
                 </td>
                 <td>
-                    <form method="POST" action="{{ url_for('update_cart') }}" class="d-inline">
-                        <input type="hidden" name="cart_key" value="{{ item.cart_key }}">
-                        <div class="input-group" style="width: 120px;">
-                            <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="form-control form-control-sm">
-                            <button type="submit" class="btn btn-sm btn-outline-light">Actualizar</button>
-                        </div>
-                    </form>
+                    <input type="number" 
+                           value="{{ item.quantity }}" 
+                           min="1" 
+                           class="form-control form-control-sm quantity-input" 
+                           style="width: 80px;"
+                           data-cart-key="{{ item.cart_key }}"
+                           data-price="{{ item.price }}">
                 </td>
                 <td>${{ "%.2f"|format(item.price) }}</td>
-                <td><strong>${{ "%.2f"|format(item.subtotal) }}</strong></td>
+                <td><strong class="subtotal-cell" data-cart-key="{{ item.cart_key }}">${{ "%.2f"|format(item.subtotal) }}</strong></td>
                 <td>
                     <a href="{{ url_for('remove_from_cart', cart_key=item.cart_key) }}" 
                        class="btn btn-sm btn-danger" 
@@ -58,7 +67,7 @@
         <tfoot>
             <tr class="table-primary">
                 <td colspan="4" class="text-end"><strong>TOTAL:</strong></td>
-                <td><strong class="fs-4">${{ "%.2f"|format(total) }}</strong></td>
+                <td><strong class="fs-4" id="cart-total">${{ "%.2f"|format(total) }}</strong></td>
                 <td></td>
             </tr>
         </tfoot>
@@ -80,5 +89,85 @@
     <a href="{{ url_for('index') }}" class="btn btn-primary">Ver Categorías</a>
 </div>
 {% endif %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const quantityInputs = document.querySelectorAll('.quantity-input');
+    
+    quantityInputs.forEach(input => {
+        let timeout;
+        
+        input.addEventListener('change', function() {
+            const cartKey = this.getAttribute('data-cart-key');
+            const price = parseFloat(this.getAttribute('data-price'));
+            const quantity = parseInt(this.value);
+            
+            if (quantity < 1) {
+                this.value = 1;
+                return;
+            }
+            
+            // Actualizar subtotal inmediatamente en la UI
+            const subtotalCell = document.querySelector(`.subtotal-cell[data-cart-key="${cartKey}"]`);
+            const newSubtotal = price * quantity;
+            subtotalCell.textContent = '$' + newSubtotal.toFixed(2);
+            
+            // Actualizar total
+            updateTotal();
+            
+            // Enviar actualización al servidor
+            const formData = new FormData();
+            formData.append('cart_key', cartKey);
+            formData.append('quantity', quantity);
+            
+            fetch('{{ url_for("update_cart") }}', {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.success) {
+                    // Actualizar total desde el servidor si está disponible
+                    if (data.total !== undefined) {
+                        document.getElementById('cart-total').textContent = '$' + parseFloat(data.total).toFixed(2);
+                    }
+                    // Actualizar subtotal desde el servidor
+                    if (data.subtotal !== undefined) {
+                        subtotalCell.textContent = '$' + parseFloat(data.subtotal).toFixed(2);
+                    }
+                } else {
+                    // Si hay error, recargar la página
+                    window.location.reload();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Recargar la página en caso de error
+                window.location.reload();
+            });
+        });
+        
+        // También actualizar cuando se usa el teclado (flechas arriba/abajo)
+        input.addEventListener('input', function() {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => {
+                this.dispatchEvent(new Event('change'));
+            }, 300);
+        });
+    });
+    
+    function updateTotal() {
+        let total = 0;
+        document.querySelectorAll('.subtotal-cell').forEach(cell => {
+            const subtotalText = cell.textContent.replace('$', '');
+            total += parseFloat(subtotalText) || 0;
+        });
+        document.getElementById('cart-total').textContent = '$' + total.toFixed(2);
+    }
+});
+</script>
 {% endblock %}
 

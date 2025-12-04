@@ -23,8 +23,17 @@
                             <tr>
                                 <td>
                                     <strong>{{ item.name }}</strong>
-                                    {% if item.category_name %}
+                                    {% if item.division and item.second_half_name %}
+                                    <br><small class="text-muted">Pizza dividida: {{ item.name.split(' / ')[0] }} / {{ item.second_half_name }}</small>
+                                    {% elif item.category_name %}
                                     <br><small class="text-muted">{{ item.category_name }}</small>
+                                    {% endif %}
+                                    {% if item.division or item.orilla_queso %}
+                                    <br>
+                                    <small class="text-info">
+                                        {% if item.division %}<span class="badge bg-warning text-dark">División (+$10)</span>{% endif %}
+                                        {% if item.orilla_queso %}<span class="badge bg-success">Orilla de queso (+${{ "%.2f"|format(item.orilla_queso_price) }})</span>{% endif %}
+                                    </small>
                                     {% endif %}
                                 </td>
                                 <td>

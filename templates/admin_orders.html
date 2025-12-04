@@ -51,7 +51,7 @@
                             <span class="badge 
                                 {% if order.status == 'pendiente' %}bg-warning
                                 {% elif order.status == 'en_preparacion' %}bg-info
-                                {% elif order.status == 'listo' %}bg-success
+                                {% elif order.status == 'completado' %}bg-success
                                 {% else %}bg-secondary{% endif %}">
                                 {{ order.status|title }}
                             </span>
@@ -75,12 +75,6 @@
                                             <form method="POST" action="{{ url_for('update_order_status', order_id=order._id|string) }}" class="d-inline">
                                                 <input type="hidden" name="status" value="en_preparacion">
                                                 <button type="submit" class="dropdown-item">En Preparación</button>
-                                            </form>
-                                        </li>
-                                        <li>
-                                            <form method="POST" action="{{ url_for('update_order_status', order_id=order._id|string) }}" class="d-inline">
-                                                <input type="hidden" name="status" value="listo">
-                                                <button type="submit" class="dropdown-item">Listo</button>
                                             </form>
                                         </li>
                                         <li>

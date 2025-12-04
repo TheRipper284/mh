@@ -15,7 +15,7 @@
                 <span class="badge 
                     {% if order.status == 'pendiente' %}bg-warning
                     {% elif order.status == 'en_preparacion' %}bg-info
-                    {% elif order.status == 'listo' %}bg-success
+                    {% elif order.status == 'completado' %}bg-success
                     {% else %}bg-secondary{% endif %} fs-6">
                     {{ order.status|title }}
                 </span>
@@ -50,7 +50,19 @@
                     {% set order_items = order.get('items', []) %}
                     {% for item in order_items %}
                     <tr>
-                        <td><strong>{{ item.product_name }}</strong></td>
+                        <td>
+                            <strong>{{ item.product_name }}</strong>
+                            {% if item.division and item.second_half_name %}
+                            <br><small class="text-muted">Pizza dividida: {{ item.product_name.split(' / ')[0] }} / {{ item.second_half_name }}</small>
+                            {% endif %}
+                            {% if item.division or item.orilla_queso %}
+                            <br>
+                            <small class="text-info">
+                                {% if item.division %}<span class="badge bg-warning text-dark">División (+$10)</span>{% endif %}
+                                {% if item.orilla_queso %}<span class="badge bg-success">Orilla de queso (+${{ "%.2f"|format(item.get('orilla_queso_price', 0)) }})</span>{% endif %}
+                            </small>
+                            {% endif %}
+                        </td>
                         <td>{{ item.category_name }}</td>
                         <td>
                             {% if item.size %}
@@ -86,12 +98,8 @@
                     <button type="submit" class="btn btn-info">En Preparación</button>
                 </form>
                 <form method="POST" action="{{ url_for('update_order_status', order_id=order._id|string) }}" class="d-inline">
-                    <input type="hidden" name="status" value="listo">
-                    <button type="submit" class="btn btn-success">Listo</button>
-                </form>
-                <form method="POST" action="{{ url_for('update_order_status', order_id=order._id|string) }}" class="d-inline">
                     <input type="hidden" name="status" value="completado">
-                    <button type="submit" class="btn btn-secondary">Completado</button>
+                    <button type="submit" class="btn btn-success">Completado</button>
                 </form>
             </div>
         </div>
